@@ -340,7 +340,13 @@ function App() {
             )}
 
             {page === 'notifications' && <NotificationsSettings onBack={() => setPage('dashboard')} />}
-            {page === 'privacy' && <Privacy onBack={() => setPage('dashboard')} />}
+            {page === 'privacy' && (
+                <Privacy
+                    onBack={() => setPage('dashboard')}
+                    user={userInfo}
+                    onDeleteAccount={() => { setUser(null); setUserInfo(null); setPage('home'); }}
+                />
+            )}
             {page === 'help' && <Help onBack={() => setPage('dashboard')} />}
             {page === 'contact' && <Contact onBack={() => setPage('dashboard')} user={userInfo} />}
             {page === 'terms' && <Terms onBack={() => setPage('dashboard')} />}
