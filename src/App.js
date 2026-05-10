@@ -173,7 +173,6 @@ function App() {
                                 </ul>
                                 <button className="btn-outline" onClick={() => {
                                     window.open('https://buy.stripe.com/test_00w5kwePSdTzc2ZgILaAw03', '_blank');
-                                    setUserInfo(prev => ({ ...prev, membership: 'basic' }));
                                     setPage('jobfeed');
                                 }}>
                                     Get started — $9.99/mo
@@ -193,7 +192,6 @@ function App() {
                                 </ul>
                                 <button className="btn-primary" onClick={() => {
                                     window.open('https://buy.stripe.com/test_bJe14g236eXD6IFfEHaAw02', '_blank');
-                                    setUserInfo(prev => ({ ...prev, membership: 'featured' }));
                                     setPage('jobfeed');
                                 }}>
                                     Start 14-day free trial
