@@ -112,12 +112,18 @@ function Privacy({ onBack, user, onDeleteAccount }) {
     async function handleDelete() {
         setDeleting(true);
         try {
-            await deleteDoc(doc(db, 'users', user.uid));
+            if (user?.uid) {
+                await deleteDoc(doc(db, 'users', user.uid));
+            }
             await deleteUser(auth.currentUser);
             onDeleteAccount();
         } catch (e) {
             console.error(e);
-            setError('Something went wrong. You may need to log out and log back in before deleting.');
+            if (e.code === 'auth/requires-recent-login') {
+                setError('For security, please log out and log back in before deleting your account.');
+            } else {
+                setError('Something went wrong. Try again.');
+            }
             setDeleting(false);
         }
     }
@@ -143,7 +149,14 @@ function Privacy({ onBack, user, onDeleteAccount }) {
 
                 {!showConfirm ? (
                     <div className="settings-list">
-                        <div className="settings-item" style={{ color: '#a32d2d' }} onClick={() => setShowConfirm(true)}>
+                        <div
+                            className="settings-item"
+                            style={{ color: '#a32d2d', cursor: 'pointer' }}
+                            onClick={() => {
+                                console.log('delete clicked, user uid:', user?.uid);
+                                setShowConfirm(true);
+                            }}
+                        >
                             <span>Delete my account</span>
                             <span className="settings-arrow">›</span>
                         </div>
