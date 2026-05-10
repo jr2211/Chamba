@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, query, onSnapshot, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { sendNotification } from './Notifications';
@@ -84,7 +84,7 @@ export default function JobFeed({ user, onBack, onLeaveReview, onUpgrade }) {
             <p style={{ fontSize: 14, color: '#888', marginBottom: 20 }}>Browse open jobs posted by contractors and homeowners in your area.</p>
 
             {!hasMembership && (
-                <div style={{ background: '#faeeda', border: '1px solid #f5d08a', borderRadius: 12, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                <div style={{ background: '#faeeda', border: '1px solid #f5d08a', borderRadius: 12, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#854f0b', marginBottom: 3 }}>Membership required to apply</div>
                         <div style={{ fontSize: 13, color: '#854f0b' }}>You need a Basic or Featured plan to apply to jobs and get hired.</div>

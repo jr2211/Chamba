@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { db } from './firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
@@ -210,7 +210,7 @@ function Terms({ onBack }) {
             <button className="btn-back" onClick={onBack} style={{ marginBottom: 20 }}>Back</button>
             <div className="profile-card">
                 <div className="section-heading">Terms of service</div>
-                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.8 }}>By using Chamba, you agree to the following terms. Chamba is a platform that connects workers with contractors. We do not employ workers or contractors and are not responsible for the quality of work performed. Payments are handled directly between workers and contractors. Chamba takes no cut of wages. Contractors pay a monthly subscription for access to the platform. Accounts found to be fraudulent or abusive will be permanently banned. Chamba reserves the right to update these terms at any time.</p>
+                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.8 }}>By using Chamba, you agree to the following terms. Chamba is a platform that connects workers with contractors. We do not employ workers or contractors, nor are we responsible for disputes between users. Always use common sense and verify information before accepting any job.</p>
             </div>
         </div>
     );

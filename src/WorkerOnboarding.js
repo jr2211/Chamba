@@ -3,6 +3,7 @@ import { db } from './firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
 const tradeOptions = ['Electrician', 'Plumber', 'Carpenter', 'General laborer', 'HVAC', 'Painter', 'Roofer', 'Welder', 'Mason', 'Other'];
+
 const skillOptions = {
     Electrician: ['Panel upgrades', 'EV charger install', 'Wiring', 'Outlets', 'Lighting', 'Service calls', 'Conduit', 'Code compliance'],
     Plumber: ['Pipe repair', 'Water heaters', 'Drain cleaning', 'Gas lines', 'Sewer', 'Full repiping', 'Fixtures'],
@@ -15,7 +16,49 @@ const skillOptions = {
     Mason: ['Brick', 'Block', 'Stone', 'Concrete', 'Stucco', 'Tile'],
     Other: ['General construction', 'Labor', 'Maintenance', 'Repairs'],
 };
-const toolOptions = ['Power drill', 'Circular saw', 'Multi-meter', 'Pipe wrench', 'Nail gun', 'Level', 'Conduit bender', 'Oscillating tool', 'Angle grinder', 'Ladder', 'Own truck/vehicle'];
+
+const toolOptions = {
+    Electrician: [
+        'Wire stripper', 'Conduit bender', 'Multi-meter', 'Fish tape', 'Voltage tester',
+        'Lineman pliers', 'Cable puller', 'Drill & bits', 'Pipe bender', 'Label maker',
+    ],
+    Plumber: [
+        'Pipe wrench', 'Pipe cutter', 'Drain snake', 'Press fitting tool', 'Torch & solder kit',
+        'Channel locks', 'Hole saw kit', 'PEX crimper', 'Thread tap set', 'Pipe threader',
+    ],
+    Carpenter: [
+        'Circular saw', 'Miter saw', 'Framing square', 'Level', 'Nail gun',
+        'Tape measure', 'Chisels', 'Router', 'Table saw', 'Hand saw', 'Speed square',
+    ],
+    'General laborer': [
+        'Shovel', 'Wheelbarrow', 'Sledgehammer', 'Pry bar', 'Hand truck',
+        'Power drill', 'Utility knife', 'Work gloves', 'Safety goggles', 'Own truck/vehicle',
+    ],
+    HVAC: [
+        'Refrigerant gauges', 'Vacuum pump', 'Leak detector', 'Multimeter', 'Pipe cutter',
+        'Drill & bits', 'Tin snips', 'Sheet metal brake', 'Thermometer', 'Recovery machine',
+    ],
+    Painter: [
+        'Airless sprayer', 'Roller set', 'Brush set', 'Ladder', 'Paint tray',
+        'Tape & plastic', 'Caulk gun', 'Sander', 'Drop cloths', 'Extension pole',
+    ],
+    Roofer: [
+        'Roofing nailer', 'Pry bar', 'Roofing shovel', 'Ladder', 'Safety harness',
+        'Chalk line', 'Utility knife', 'Caulk gun', 'Tin snips', 'Heat gun',
+    ],
+    Welder: [
+        'MIG welder', 'TIG welder', 'Stick welder', 'Angle grinder', 'Welding helmet',
+        'Chipping hammer', 'Wire brush', 'Clamps', 'Plasma cutter', 'Welding gloves',
+    ],
+    Mason: [
+        'Trowel set', 'Masonry saw', 'Level', 'Mixing drill', 'Grout bag',
+        'Jointing tool', 'Cold chisel', 'Brick hammer', 'Tile saw', 'Float',
+    ],
+    Other: [
+        'Power drill', 'Level', 'Tape measure', 'Utility knife', 'Ladder',
+        'Safety gear', 'Hand tools', 'Own truck/vehicle',
+    ],
+};
 
 export default function WorkerOnboarding({ user, onComplete }) {
     const [step, setStep] = useState(0);
@@ -39,6 +82,12 @@ export default function WorkerOnboarding({ user, onComplete }) {
         setSelectedTools(prev => prev.includes(tool) ? prev.filter(t => t !== tool) : [...prev, tool]);
     }
 
+    function handleTradeSelect(t) {
+        setTrade(t);
+        setSelectedSkills([]);
+        setSelectedTools([]);
+    }
+
     async function handleFinish() {
         setSaving(true);
         try {
@@ -60,7 +109,7 @@ export default function WorkerOnboarding({ user, onComplete }) {
             <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>Pick the one that best describes your primary skill.</p>
             <div className="opt-grid">
                 {tradeOptions.map(t => (
-                    <div key={t} className={`opt ${trade === t ? 'selected' : ''}`} onClick={() => setTrade(t)}>{t}</div>
+                    <div key={t} className={`opt ${trade === t ? 'selected' : ''}`} onClick={() => handleTradeSelect(t)}>{t}</div>
                 ))}
             </div>
             <div className="btn-row">
@@ -102,9 +151,12 @@ export default function WorkerOnboarding({ user, onComplete }) {
         // Step 3 - Tools
         <div key={3}>
             <h2>What tools do you own?</h2>
-            <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>Contractors love workers who come prepared. Select everything you have.</p>
+            <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>
+                Select everything you have. Contractors love workers who come prepared.
+                {trade && <span style={{ color: '#1D9E75', fontWeight: 500 }}> Showing tools for {trade}.</span>}
+            </p>
             <div className="opt-grid">
-                {toolOptions.map(t => (
+                {(toolOptions[trade] || toolOptions.Other).map(t => (
                     <div key={t} className={`opt ${selectedTools.includes(t) ? 'selected' : ''}`} onClick={() => toggleTool(t)}>{t}</div>
                 ))}
             </div>

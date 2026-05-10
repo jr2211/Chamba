@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './App.css';
-import JobForm from './JobForm';
 import WorkerProfile from './WorkerProfile';
 import Auth from './Auth';
 import Dashboard from './Dashboard';

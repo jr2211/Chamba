@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { db } from './firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { sendNotification } from './Notifications';
@@ -77,7 +77,7 @@ export default function JobOffer({ worker, contractor, onBack, onSent }) {
                 <input className="text-input" placeholder="e.g. Electrician needed for panel upgrade" value={title} onChange={e => setTitle(e.target.value)} style={{ marginBottom: 16 }} />
 
                 <label className="field-label">Job description</label>
-                <textarea className="text-input" rows={4} placeholder="Describe the work, location, any requirements..." value={description} onChange={e => setDescription(e.target.value)} style={{ resize: 'none', lineHeight: 1.5, marginBottom: 16 }} />
+                <textarea className="text-input" rows={4} placeholder="Describe the work, location, any requirements..." value={description} onChange={e => setDescription(e.target.value)} style={{ marginBottom: 16 }} />
 
                 <label className="field-label">Estimated duration</label>
                 <select className="select-input" value={duration} onChange={e => setDuration(e.target.value)} style={{ marginBottom: 16 }}>

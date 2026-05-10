@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function ChambaLogo({ size = 36 }) {
-    const scale = size / 42;
+  
     return (
         <svg width={size} height={size} viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
             <rect x="0" y="0" width="42" height="42" rx="10" fill="#111" />
