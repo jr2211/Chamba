@@ -2,62 +2,103 @@ import React, { useState } from 'react';
 import { db } from './firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
-const tradeOptions = ['Electrician', 'Plumber', 'Carpenter', 'General laborer', 'HVAC', 'Painter', 'Roofer', 'Welder', 'Mason', 'Other'];
+const tradeOptions = [
+    'Appliance repair',
+    'Auto mechanic',
+    'Car detailing',
+    'Carpenter',
+    'Concrete & flatwork',
+    'Drywall',
+    'Electrician',
+    'Flooring installer',
+    'General laborer',
+    'Glass & glazing',
+    'Handyman',
+    'HVAC',
+    'Insulation installer',
+    'Landscaper',
+    'Locksmith',
+    'Mason',
+    'Mover',
+    'Painter',
+    'Pest control',
+    'Plumber',
+    'Pool technician',
+    'Power washing',
+    'Roofer',
+    'Security system installer',
+    'Solar installer',
+    'Tile setter',
+    'Tree trimmer',
+    'Welder',
+    'Window & door installer',
+    'Other',
+];
 
 const skillOptions = {
-    Electrician: ['Panel upgrades', 'EV charger install', 'Wiring', 'Outlets', 'Lighting', 'Service calls', 'Conduit', 'Code compliance'],
-    Plumber: ['Pipe repair', 'Water heaters', 'Drain cleaning', 'Gas lines', 'Sewer', 'Full repiping', 'Fixtures'],
+    'Appliance repair': ['Washer/dryer repair', 'Refrigerator repair', 'Dishwasher repair', 'Oven/stove repair', 'Microwave repair', 'HVAC appliances'],
+    'Auto mechanic': ['Oil changes', 'Brake service', 'Engine repair', 'Transmission', 'Electrical systems', 'Suspension', 'Diagnostics'],
+    'Car detailing': ['Interior cleaning', 'Exterior wash & wax', 'Paint correction', 'Ceramic coating', 'Upholstery cleaning', 'Engine bay cleaning', 'Window tinting'],
     Carpenter: ['Framing', 'Finish work', 'Cabinets', 'Decks', 'Drywall', 'Flooring', 'Trim', 'Doors & windows'],
+    'Concrete & flatwork': ['Slab pour', 'Driveways', 'Sidewalks', 'Stamped concrete', 'Concrete repair', 'Retaining walls'],
+    Drywall: ['Hanging drywall', 'Taping & mudding', 'Texture', 'Patching', 'Finish sanding', 'Soundproofing'],
+    Electrician: ['Panel upgrades', 'EV charger install', 'Wiring', 'Outlets', 'Lighting', 'Service calls', 'Conduit', 'Code compliance'],
+    'Flooring installer': ['Hardwood', 'Laminate', 'Vinyl plank', 'Tile', 'Carpet', 'Subfloor prep', 'Baseboards'],
     'General laborer': ['Demo', 'Site cleanup', 'Material handling', 'Painting', 'Landscaping', 'Moving', 'Loading'],
+    'Glass & glazing': ['Window installation', 'Glass replacement', 'Shower doors', 'Mirrors', 'Storefronts', 'Skylights'],
+    Handyman: ['General repairs', 'Furniture assembly', 'Drywall patching', 'Painting', 'Fixture installation', 'Caulking', 'Door & window repair'],
     HVAC: ['AC install', 'Furnace repair', 'Duct work', 'Refrigerants', 'Thermostats', 'Mini splits'],
-    Painter: ['Interior', 'Exterior', 'Spray painting', 'Drywall prep', 'Texture', 'Cabinet painting'],
-    Roofer: ['Shingle install', 'Flat roofing', 'Repairs', 'Gutters', 'Flashing', 'Inspections'],
-    Welder: ['MIG', 'TIG', 'Stick', 'Structural', 'Pipe welding', 'Fabrication'],
+    'Insulation installer': ['Batt insulation', 'Blown-in insulation', 'Spray foam', 'Attic insulation', 'Wall insulation', 'Vapor barrier'],
+    Landscaper: ['Lawn mowing', 'Irrigation systems', 'Tree planting', 'Sod installation', 'Hardscaping', 'Cleanup & debris removal', 'Fertilizing'],
+    Locksmith: ['Lock installation', 'Lockouts', 'Rekeying', 'Safe installation', 'Electronic locks', 'Commercial locks'],
     Mason: ['Brick', 'Block', 'Stone', 'Concrete', 'Stucco', 'Tile'],
+    Mover: ['Residential moves', 'Commercial moves', 'Furniture assembly', 'Packing & unpacking', 'Piano moving', 'Long distance moves'],
+    Painter: ['Interior', 'Exterior', 'Spray painting', 'Drywall prep', 'Texture', 'Cabinet painting'],
+    'Pest control': ['Rodent control', 'Termite treatment', 'Bed bug treatment', 'Ant & roach control', 'Fumigation', 'Preventative treatment'],
+    Plumber: ['Pipe repair', 'Water heaters', 'Drain cleaning', 'Gas lines', 'Sewer', 'Full repiping', 'Fixtures'],
+    'Pool technician': ['Pool cleaning', 'Chemical balancing', 'Filter maintenance', 'Pump repair', 'Tile cleaning', 'Pool plastering'],
+    'Power washing': ['Driveways', 'Decks & patios', 'House exterior', 'Fences', 'Roofs', 'Commercial properties'],
+    Roofer: ['Shingle install', 'Flat roofing', 'Repairs', 'Gutters', 'Flashing', 'Inspections'],
+    'Security system installer': ['Camera installation', 'Alarm systems', 'Access control', 'Smart home integration', 'Commercial security', 'Intercoms'],
+    'Solar installer': ['Panel installation', 'Inverter setup', 'Battery storage', 'Electrical connection', 'Roof mounting', 'System monitoring'],
+    'Tile setter': ['Floor tile', 'Wall tile', 'Backsplash', 'Shower tile', 'Grout & caulk', 'Stone installation'],
+    'Tree trimmer': ['Tree trimming', 'Tree removal', 'Stump grinding', 'Emergency tree service', 'Crown reduction', 'Deadwood removal'],
+    Welder: ['MIG', 'TIG', 'Stick', 'Structural', 'Pipe welding', 'Fabrication'],
+    'Window & door installer': ['Window replacement', 'Door installation', 'Sliding doors', 'French doors', 'Window repair', 'Weatherproofing'],
     Other: ['General construction', 'Labor', 'Maintenance', 'Repairs'],
 };
 
 const toolOptions = {
-    Electrician: [
-        'Wire stripper', 'Conduit bender', 'Multi-meter', 'Fish tape', 'Voltage tester',
-        'Lineman pliers', 'Cable puller', 'Drill & bits', 'Pipe bender', 'Label maker',
-    ],
-    Plumber: [
-        'Pipe wrench', 'Pipe cutter', 'Drain snake', 'Press fitting tool', 'Torch & solder kit',
-        'Channel locks', 'Hole saw kit', 'PEX crimper', 'Thread tap set', 'Pipe threader',
-    ],
-    Carpenter: [
-        'Circular saw', 'Miter saw', 'Framing square', 'Level', 'Nail gun',
-        'Tape measure', 'Chisels', 'Router', 'Table saw', 'Hand saw', 'Speed square',
-    ],
-    'General laborer': [
-        'Shovel', 'Wheelbarrow', 'Sledgehammer', 'Pry bar', 'Hand truck',
-        'Power drill', 'Utility knife', 'Work gloves', 'Safety goggles', 'Own truck/vehicle',
-    ],
-    HVAC: [
-        'Refrigerant gauges', 'Vacuum pump', 'Leak detector', 'Multimeter', 'Pipe cutter',
-        'Drill & bits', 'Tin snips', 'Sheet metal brake', 'Thermometer', 'Recovery machine',
-    ],
-    Painter: [
-        'Airless sprayer', 'Roller set', 'Brush set', 'Ladder', 'Paint tray',
-        'Tape & plastic', 'Caulk gun', 'Sander', 'Drop cloths', 'Extension pole',
-    ],
-    Roofer: [
-        'Roofing nailer', 'Pry bar', 'Roofing shovel', 'Ladder', 'Safety harness',
-        'Chalk line', 'Utility knife', 'Caulk gun', 'Tin snips', 'Heat gun',
-    ],
-    Welder: [
-        'MIG welder', 'TIG welder', 'Stick welder', 'Angle grinder', 'Welding helmet',
-        'Chipping hammer', 'Wire brush', 'Clamps', 'Plasma cutter', 'Welding gloves',
-    ],
-    Mason: [
-        'Trowel set', 'Masonry saw', 'Level', 'Mixing drill', 'Grout bag',
-        'Jointing tool', 'Cold chisel', 'Brick hammer', 'Tile saw', 'Float',
-    ],
-    Other: [
-        'Power drill', 'Level', 'Tape measure', 'Utility knife', 'Ladder',
-        'Safety gear', 'Hand tools', 'Own truck/vehicle',
-    ],
+    'Appliance repair': ['Multimeter', 'Screwdriver set', 'Pliers set', 'Soldering iron', 'Refrigerant gauges', 'Voltage tester', 'Appliance dolly'],
+    'Auto mechanic': ['Socket set', 'Torque wrench', 'OBD scanner', 'Jack stands', 'Floor jack', 'Impact wrench', 'Brake bleeder kit'],
+    'Car detailing': ['Pressure washer', 'Polisher/buffer', 'Wet/dry vacuum', 'Steam cleaner', 'Detail brushes', 'Microfiber towels', 'Foam cannon'],
+    Carpenter: ['Circular saw', 'Miter saw', 'Framing square', 'Level', 'Nail gun', 'Tape measure', 'Chisels', 'Router', 'Table saw', 'Speed square'],
+    'Concrete & flatwork': ['Concrete mixer', 'Bull float', 'Trowels', 'Screed board', 'Edger', 'Concrete saw', 'Vibrator'],
+    Drywall: ['Drywall lift', 'Taping knives', 'Mud pan', 'Corner bead tool', 'Sander', 'Screw gun', 'T-square'],
+    Electrician: ['Wire stripper', 'Conduit bender', 'Multi-meter', 'Fish tape', 'Voltage tester', 'Lineman pliers', 'Cable puller', 'Drill & bits', 'Pipe bender'],
+    'Flooring installer': ['Flooring nailer', 'Miter saw', 'Tapping block', 'Pull bar', 'Knee pads', 'Tile saw', 'Notched trowel'],
+    'General laborer': ['Shovel', 'Wheelbarrow', 'Sledgehammer', 'Pry bar', 'Hand truck', 'Power drill', 'Utility knife', 'Own truck/vehicle'],
+    'Glass & glazing': ['Glass cutter', 'Suction cups', 'Glazing knife', 'Heat gun', 'Silicone gun', 'Glass pliers', 'Measuring tools'],
+    Handyman: ['Power drill', 'Level', 'Stud finder', 'Caulk gun', 'Utility knife', 'Hammer', 'Screwdriver set', 'Ladder', 'Tape measure'],
+    HVAC: ['Refrigerant gauges', 'Vacuum pump', 'Leak detector', 'Multimeter', 'Pipe cutter', 'Drill & bits', 'Tin snips', 'Recovery machine'],
+    'Insulation installer': ['Insulation blower', 'Spray foam gun', 'Utility knife', 'Staple gun', 'Safety gear', 'Measuring tape', 'Respirator'],
+    Landscaper: ['Lawn mower', 'Weed trimmer', 'Leaf blower', 'Hedge trimmer', 'Shovel & rake', 'Wheelbarrow', 'Irrigation tools', 'Own truck/trailer'],
+    Locksmith: ['Lock pick set', 'Key cutter', 'Plug follower', 'Tension wrenches', 'Drill', 'RFID programmer', 'Scope'],
+    Mason: ['Trowel set', 'Masonry saw', 'Level', 'Mixing drill', 'Grout bag', 'Jointing tool', 'Cold chisel', 'Brick hammer'],
+    Mover: ['Furniture dolly', 'Appliance dolly', 'Moving straps', 'Furniture blankets', 'Stretch wrap', 'Box cutter', 'Own truck/van'],
+    Painter: ['Airless sprayer', 'Roller set', 'Brush set', 'Ladder', 'Paint tray', 'Tape & plastic', 'Caulk gun', 'Sander', 'Drop cloths'],
+    'Pest control': ['Sprayer', 'Duster', 'Bait stations', 'Inspection light', 'Respirator', 'Safety gear', 'Drill for wall treatment'],
+    Plumber: ['Pipe wrench', 'Pipe cutter', 'Drain snake', 'Press fitting tool', 'Torch & solder kit', 'Channel locks', 'PEX crimper', 'Pipe threader'],
+    'Pool technician': ['Test kit', 'Pool vacuum', 'Skimmer net', 'Brush', 'Chemical kit', 'Filter wrench', 'Pump tester'],
+    'Power washing': ['Pressure washer', 'Surface cleaner attachment', 'Extension wand', 'Nozzle set', 'Chemical injector', 'Own truck/trailer'],
+    Roofer: ['Roofing nailer', 'Pry bar', 'Roofing shovel', 'Ladder', 'Safety harness', 'Chalk line', 'Utility knife', 'Heat gun'],
+    'Security system installer': ['Cable tester', 'Drill & bits', 'Fish tape', 'Multimeter', 'Crimping tool', 'Laptop for programming', 'Lift/ladder'],
+    'Solar installer': ['Drill & bits', 'Torque wrench', 'Multimeter', 'Wire stripper', 'Conduit bender', 'Safety harness', 'Mounting hardware tools'],
+    'Tile setter': ['Tile saw', 'Notched trowel', 'Grout float', 'Level', 'Tile spacers', 'Rubber mallet', 'Knee pads', 'Angle grinder'],
+    'Tree trimmer': ['Chainsaw', 'Pole saw', 'Wood chipper', 'Climbing gear', 'Safety harness', 'Stump grinder', 'Own truck/trailer'],
+    Welder: ['MIG welder', 'TIG welder', 'Stick welder', 'Angle grinder', 'Welding helmet', 'Chipping hammer', 'Wire brush', 'Plasma cutter'],
+    'Window & door installer': ['Drill & bits', 'Level', 'Pry bar', 'Caulk gun', 'Shims', 'Measuring tape', 'Utility knife', 'Miter saw'],
+    Other: ['Power drill', 'Level', 'Tape measure', 'Utility knife', 'Ladder', 'Safety gear', 'Hand tools', 'Own truck/vehicle'],
 };
 
 export default function WorkerOnboarding({ user, onComplete }) {
@@ -103,7 +144,6 @@ export default function WorkerOnboarding({ user, onComplete }) {
     }
 
     const steps = [
-        // Step 0 - Trade
         <div key={0}>
             <h2>What is your main trade?</h2>
             <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>Pick the one that best describes your primary skill.</p>
@@ -118,7 +158,6 @@ export default function WorkerOnboarding({ user, onComplete }) {
             </div>
         </div>,
 
-        // Step 1 - Experience
         <div key={1}>
             <h2>How much experience do you have?</h2>
             <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>Be honest — contractors will see this on your profile.</p>
@@ -133,7 +172,6 @@ export default function WorkerOnboarding({ user, onComplete }) {
             </div>
         </div>,
 
-        // Step 2 - Skills
         <div key={2}>
             <h2>What are your skills?</h2>
             <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>Select all that apply. This helps contractors find you for the right jobs.</p>
@@ -148,7 +186,6 @@ export default function WorkerOnboarding({ user, onComplete }) {
             </div>
         </div>,
 
-        // Step 3 - Tools
         <div key={3}>
             <h2>What tools do you own?</h2>
             <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>
@@ -166,7 +203,6 @@ export default function WorkerOnboarding({ user, onComplete }) {
             </div>
         </div>,
 
-        // Step 4 - Availability, rate, zip
         <div key={4}>
             <h2>Last details</h2>
             <p style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>This is what contractors see first when browsing workers.</p>
