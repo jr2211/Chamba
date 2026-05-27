@@ -15,7 +15,7 @@ export default function JobFeed({ user, onBack, onLeaveReview, onUpgrade }) {
     const [useRadius, setUseRadius] = useState(true);
     const [applying, setApplying] = useState(null);
 
-    const hasMembership = user?.membership === 'basic' || user?.membership === 'featured';
+    const hasMembership = true;
     const userZip = user?.zip || '';
 
     useEffect(() => {
@@ -83,17 +83,7 @@ export default function JobFeed({ user, onBack, onLeaveReview, onUpgrade }) {
             <h2 style={{ marginBottom: 4 }}>Jobs near you</h2>
             <p style={{ fontSize: 14, color: '#888', marginBottom: 20 }}>Browse open jobs posted by contractors and homeowners in your area.</p>
 
-            {!hasMembership && (
-                <div style={{ background: '#faeeda', border: '1px solid #f5d08a', borderRadius: 12, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#854f0b', marginBottom: 3 }}>Membership required to apply</div>
-                        <div style={{ fontSize: 13, color: '#854f0b' }}>You need a Basic or Featured plan to apply to jobs and get hired.</div>
-                    </div>
-                    <button className="btn-primary" style={{ fontSize: 13, padding: '9px 18px', whiteSpace: 'nowrap' }} onClick={() => onUpgrade && onUpgrade()}>
-                        View plans
-                    </button>
-                </div>
-            )}
+            
 
             {userZip && (
                 <div style={{ background: '#f9f9f9', border: '1px solid #eee', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>

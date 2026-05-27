@@ -91,7 +91,6 @@ function App() {
                     Chamba
                 </div>
                 <div className="nav-links">
-                    
                     {!user && <span onClick={() => setPage('contractors')}>For contractors</span>}
                     {user && user.role === 'worker' && <span onClick={() => setPage('jobfeed')}>Jobs</span>}
                     {user && user.role === 'contractor' && <span onClick={() => setPage('feed')}>Find workers</span>}
@@ -158,62 +157,41 @@ function App() {
                     <div className="auth-card" style={{ maxWidth: 560 }}>
                         <div style={{ textAlign: 'center', marginBottom: 28 }}>
                             <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
-                            <h2 style={{ marginBottom: 8 }}>Profile complete!</h2>
-                            <p style={{ fontSize: 14, color: '#555' }}>Choose a membership to make your profile visible to contractors and start getting hired.</p>
+                            <h2 style={{ marginBottom: 8 }}>Welcome to Chamba!</h2>
+                            <p style={{ fontSize: 14, color: '#555' }}>Chamba is completely free during our launch period. No credit card needed — just start finding work.</p>
                         </div>
-                        <div className="plans">
-                            <div className="plan">
-                                <div className="plan-name">Basic</div>
-                                <div className="plan-price">$9.99<span>/mo</span></div>
-                                <ul>
-                                    <li>Profile listed to contractors</li>
-                                    <li>Apply to job posts</li>
-                                    <li>Direct messaging</li>
-                                    <li>Keep 100% of wages</li>
-                                </ul>
-                                <button className="btn-outline" onClick={() => {
-                                    window.open('https://buy.stripe.com/test_00w5kwePSdTzc2ZgILaAw03', '_blank');
-                                    setPage('jobfeed');
-                                }}>
-                                    Get started — $9.99/mo
-                                </button>
-                            </div>
-                            <div className="plan featured">
-                                <div className="plan-badge">Get hired faster</div>
-                                <div className="plan-name">Featured</div>
-                                <div className="plan-price">$19.99<span>/mo</span></div>
-                                <ul>
-                                    <li>Top of search results</li>
-                                    <li>Featured badge on profile</li>
-                                    <li>Priority job matches</li>
-                                    <li>Direct messaging</li>
-                                    <li>Keep 100% of wages</li>
-                                    <li>14-day free trial</li>
-                                </ul>
-                                <button className="btn-primary" onClick={() => {
-                                    window.open('https://buy.stripe.com/test_bJe14g236eXD6IFfEHaAw02', '_blank');
-                                    setPage('jobfeed');
-                                }}>
-                                    Start 14-day free trial
-                                </button>
+
+                        <div style={{ background: '#e1f5ee', border: '1px solid #1D9E75', borderRadius: 12, padding: '20px', marginBottom: 20, textAlign: 'center' }}>
+                            <div style={{ fontSize: 24, marginBottom: 8 }}>🚀</div>
+                            <div style={{ fontSize: 16, fontWeight: 600, color: '#0f6e56', marginBottom: 6 }}>Free Launch Access</div>
+                            <div style={{ fontSize: 14, color: '#0f6e56' }}>All features are free while we grow. We will give you plenty of notice before introducing any paid plans.</div>
+                        </div>
+
+                        <div style={{ background: '#f9f9f9', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: '#111', marginBottom: 10 }}>What you get for free:</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {['Apply to jobs near you', 'Your profile visible to contractors', 'Direct messaging with contractors', 'Job offers and instant notifications', 'Keep 100% of your wages — always'].map(item => (
+                                    <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#444' }}>
+                                        <span style={{ color: '#1D9E75', fontWeight: 600 }}>✓</span>
+                                        {item}
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
-                        <div style={{ marginTop: 20, padding: '16px', background: '#f9f9f9', borderRadius: 12, border: '1px dashed #ddd', textAlign: 'center' }}>
-                            <div style={{ fontSize: 12, color: '#aaa', marginBottom: 8 }}>🧪 Testing mode</div>
-                            <button
-                                style={{ fontSize: 13, padding: '9px 20px', borderRadius: 8, border: '1px solid #1D9E75', background: 'white', color: '#1D9E75', cursor: 'pointer', fontWeight: 500 }}
-                                onClick={() => {
-                                    setUserInfo(prev => ({ ...prev, membership: 'basic' }));
-                                    setPage('jobfeed');
-                                }}
-                            >
-                                Activate test membership (skip Stripe)
-                            </button>
-                        </div>
+                        <button
+                            className="btn-primary"
+                            style={{ width: '100%', padding: 14, fontSize: 15 }}
+                            onClick={() => {
+                                setUserInfo(prev => ({ ...prev, membership: 'basic' }));
+                                setPage('jobfeed');
+                            }}
+                        >
+                            Start finding work — it's free
+                        </button>
 
-                        <div style={{ textAlign: 'center', marginTop: 8 }}>
-                            <button className="btn-back" onClick={() => setPage('jobfeed')}>Skip for now</button>
+                        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#aaa' }}>
+                            No credit card required. Free during launch period.
                         </div>
                     </div>
                 </div>
