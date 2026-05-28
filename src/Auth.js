@@ -9,6 +9,7 @@ export default function Auth({ onSuccess }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [ageConfirmed, setAgeConfirmed] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [resetSent, setResetSent] = useState(false);
@@ -18,6 +19,10 @@ export default function Auth({ onSuccess }) {
 
     async function handleSubmit() {
         setError('');
+        if (mode === 'signup' && !ageConfirmed) {
+            setError('You must be 18 or older to use Chamba.');
+            return;
+        }
         setLoading(true);
         try {
             if (mode === 'signup') {
@@ -167,7 +172,7 @@ export default function Auth({ onSuccess }) {
                 <input className="text-input" type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} style={{ marginBottom: 16 }} />
 
                 <label className="field-label">Password</label>
-                <input className="text-input" type="password" placeholder="At least 6 characters" value={password} onChange={e => setPassword(e.target.value)} style={{ marginBottom: mode === 'login' ? 8 : 20 }} />
+                <input className="text-input" type="password" placeholder="At least 6 characters" value={password} onChange={e => setPassword(e.target.value)} style={{ marginBottom: mode === 'login' ? 8 : 16 }} />
 
                 {mode === 'login' && (
                     <div style={{ textAlign: 'right', marginBottom: 20 }}>
@@ -180,9 +185,32 @@ export default function Auth({ onSuccess }) {
                     </div>
                 )}
 
+                {mode === 'signup' && (
+                    <div
+                        style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 20, padding: '14px 16px', background: '#f9f9f9', borderRadius: 10, cursor: 'pointer' }}
+                        onClick={() => setAgeConfirmed(!ageConfirmed)}
+                    >
+                        <div style={{
+                            width: 20, height: 20, borderRadius: 4, border: `2px solid ${ageConfirmed ? '#1D9E75' : '#ddd'}`,
+                            background: ageConfirmed ? '#1D9E75' : 'white', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', flexShrink: 0, marginTop: 1
+                        }}>
+                            {ageConfirmed && <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>✓</span>}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#444', lineHeight: 1.5 }}>
+                            I confirm that I am <strong>18 years of age or older</strong>. Chamba is not available to anyone under 18.
+                        </div>
+                    </div>
+                )}
+
                 {error && <div className="auth-error" style={{ marginBottom: 16 }}>{error}</div>}
 
-                <button className="btn-primary" style={{ width: '100%', padding: 13 }} onClick={handleSubmit} disabled={loading}>
+                <button
+                    className="btn-primary"
+                    style={{ width: '100%', padding: 13 }}
+                    onClick={handleSubmit}
+                    disabled={loading || (mode === 'signup' && !ageConfirmed)}
+                >
                     {loading ? 'Please wait...' : mode === 'login' ? 'Log in' : 'Create account'}
                 </button>
 
