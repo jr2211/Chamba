@@ -1,89 +1,125 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from './firebase';
-import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import {
+  collection, addDoc, onSnapshot, orderBy, query, serverTimestamp, doc, setDoc
+} from 'firebase/firestore';
 import { sendNotification } from './Notifications';
 
 export default function Chat({ chatId, user, otherPerson, onBack }) {
-    const [messages, setMessages] = useState([]);
-    const [text, setText] = useState('');
-    const bottomRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+  const bottomRef = useRef(null);
 
-    useEffect(() => {
-        if (!chatId) return;
-        const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('createdAt'));
-        const unsub = onSnapshot(q, snap => {
-            setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-        });
-        return () => unsub();
-    }, [chatId]);
+  useEffect(() => {
+    if (!chatId) return;
+    const messagesRef = collection(db, 'chats', chatId, 'messages');
+    const q = query(messagesRef, orderBy('createdAt', 'asc'));
+    const unsub = onSnapshot(q, snap => {
+      setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    });
+    return () => unsub();
+  }, [chatId]);
 
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+  async function sendMessage() {
+    if (!text.trim() || sending) return;
+    setSending(true);
+    try {
+      // Create parent chat document first
+      await setDoc(doc(db, 'chats', chatId), {
+        participants: [user.uid, otherPerson.uid || otherPerson.id],
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
 
-    async function sendMessage() {
-        if (!text.trim() || !chatId) return;
-        await addDoc(collection(db, 'chats', chatId, 'messages'), {
-            text,
-            senderId: user.uid,
-            senderName: user.name,
-            createdAt: new Date(),
-        });
-        if (otherPerson?.uid) {
-            await sendNotification(
-                otherPerson.uid,
-                'message',
-                `New message from ${user.name || 'someone'}: "${text.length > 40 ? text.substring(0, 40) + '...' : text}"`,
-                { chatId, senderName: user.name, senderUid: user.uid }
-            );
-        }
-        setText('');
+      // Then add the message
+      await addDoc(collection(db, 'chats', chatId, 'messages'), {
+        text: text.trim(),
+        senderId: user.uid,
+        senderName: user.name || 'User',
+        createdAt: serverTimestamp(),
+      });
+
+      // Send notification to other person
+      const otherUid = otherPerson.uid || otherPerson.id;
+      if (otherUid) {
+        await sendNotification(
+          otherUid,
+          'message',
+          `New message from ${user.name || 'Someone'}`,
+          { chatId, senderUid: user.uid, senderName: user.name }
+        );
+      }
+
+      setText('');
+    } catch (e) {
+      console.error('Send error:', e);
     }
+    setSending(false);
+  }
 
-    function handleKey(e) {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    }
-
-    return (
-        <div className="form-page">
-            <button className="btn-back" onClick={onBack} style={{ marginBottom: 16 }}>Back</button>
-            <div className="profile-card" style={{ padding: 0, overflow: 'hidden' }}>
-                <div className="chat-header">
-                    <div className="avatar" style={{ width: 36, height: 36, fontSize: 14 }}>{otherPerson?.name?.charAt(0) || '?'}</div>
-                    <div>
-                        <div style={{ fontSize: 14, fontWeight: 600 }}>{otherPerson?.name || 'Chat'}</div>
-                        <div style={{ fontSize: 12, color: '#aaa' }}>{otherPerson?.trade || ''}</div>
-                    </div>
-                </div>
-
-                <div className="chat-body">
-                    {messages.length === 0 && (
-                        <div style={{ textAlign: 'center', color: '#aaa', fontSize: 13, marginTop: 40 }}>No messages yet. Say hello!</div>
-                    )}
-                    {messages.map(msg => (
-                        <div key={msg.id} className={`chat-bubble-wrap ${msg.senderId === user.uid ? 'mine' : 'theirs'}`}>
-                            <div className={`chat-bubble ${msg.senderId === user.uid ? 'mine' : 'theirs'}`}>
-                                {msg.text}
-                            </div>
-                        </div>
-                    ))}
-                    <div ref={bottomRef} />
-                </div>
-
-                <div className="chat-input-row">
-                    <textarea
-                        className="chat-input"
-                        placeholder="Type a message..."
-                        value={text}
-                        onChange={e => setText(e.target.value)}
-                        onKeyDown={handleKey}
-                        rows={1}
-                    />
-                    <button className="btn-primary" style={{ padding: '10px 18px', fontSize: 13 }} onClick={sendMessage} disabled={!text.trim()}>
-                        Send
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="form-page" style={{ display: 'flex', flexDirection: 'column', height: '90vh', padding: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid #eee', background: 'white' }}>
+        <button className="btn-back" onClick={onBack} style={{ marginBottom: 0 }}>Back</button>
+        <div className="avatar" style={{ width: 36, height: 36, fontSize: 14 }}>
+          {otherPerson?.name?.charAt(0) || '?'}
         </div>
-    );
+        <div style={{ fontSize: 15, fontWeight: 600 }}>{otherPerson?.name || 'Chat'}</div>
+      </div>
+
+      <div className="chat-body" style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {messages.length === 0 && (
+          <div style={{ textAlign: 'center', color: '#aaa', fontSize: 14, marginTop: 40 }}>
+            No messages yet. Say hello!
+          </div>
+        )}
+        {messages.map(msg => (
+          <div
+            key={msg.id}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: msg.senderId === user.uid ? 'flex-end' : 'flex-start',
+            }}
+          >
+            <div style={{
+              background: msg.senderId === user.uid ? '#1D9E75' : '#f0f0f0',
+              color: msg.senderId === user.uid ? 'white' : '#111',
+              padding: '10px 14px',
+              borderRadius: msg.senderId === user.uid ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+              maxWidth: '70%',
+              fontSize: 14,
+              lineHeight: 1.5,
+            }}>
+              {msg.text}
+            </div>
+            <div style={{ fontSize: 11, color: '#aaa', marginTop: 3 }}>
+              {msg.senderId === user.uid ? 'You' : msg.senderName}
+            </div>
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+
+      <div style={{ display: 'flex', gap: 10, padding: '16px 20px', borderTop: '1px solid #eee', background: 'white' }}>
+        <input
+          className="text-input"
+          placeholder="Type a message..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          style={{ flex: 1, marginBottom: 0 }}
+        />
+        <button
+          className="btn-primary"
+          style={{ padding: '10px 20px', fontSize: 14, whiteSpace: 'nowrap' }}
+          onClick={sendMessage}
+          disabled={sending || !text.trim()}
+        >
+          {sending ? 'Sending...' : 'Send'}
+        </button>
+      </div>
+    </div>
+  );
 }
