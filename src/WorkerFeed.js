@@ -30,7 +30,7 @@ export default function WorkerFeed({ onBack, onViewProfile, contractor }) {
     useEffect(() => {
         const q = query(collection(db, 'users'), where('role', '==', 'worker'), where('onboarded', '==', true));
         const unsub = onSnapshot(q, snap => {
-            setWorkers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+            setWorkers(snap.docs.map(d => ({ id: d.id, uid: d.id, ...d.data() })));
             setLoading(false);
         });
         return () => unsub();

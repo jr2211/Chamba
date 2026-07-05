@@ -50,8 +50,10 @@ function App() {
   }
 
   function handleChat(worker) {
-    const chatId = [userInfo?.uid || 'guest', worker.id || worker.uid || worker.name].sort().join('_');
-    setChatData({ chatId, otherPerson: worker });
+    const workerUid = worker.uid || worker.id;
+    console.log('handleChat worker:', worker.name, 'uid:', workerUid);
+    const chatId = [userInfo?.uid, workerUid].sort().join('_');
+    setChatData({ chatId, otherPerson: { ...worker, uid: workerUid } });
     setPage('chat');
   }
 
