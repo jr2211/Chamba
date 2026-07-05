@@ -9,52 +9,47 @@ export default function Messages({ user, onOpenChat, onBack }) {
   useEffect(() => {
     if (!user?.uid) return;
 
-    async function loadConversations() {
-      try {
-        const chatsRef = collection(db, 'chats');
-        const q = query(chatsRef);
-        const snap = await getDocs(q);
+    const chatsRef = collection(db, 'chats');
+    const unsub = onSnapshot(chatsRef, async (snap) => {
+      const userChats = [];
 
-        const userChats = [];
+      for (const chatDoc of snap.docs) {
+        const chatId = chatDoc.id;
+        const data = chatDoc.data();
 
-        for (const chatDoc of snap.docs) {
-          const chatId = chatDoc.id;
-          if (!chatId.includes(user.uid)) continue;
+        const participants = data.participants || [];
+        if (!participants.includes(user.uid)) continue;
 
-          const messagesRef = collection(db, 'chats', chatId, 'messages');
-          const messagesQ = query(messagesRef, orderBy('createdAt', 'desc'), limit(1));
-          const messagesSnap = await getDocs(messagesQ);
+        const messagesRef = collection(db, 'chats', chatId, 'messages');
+        const messagesQ = query(messagesRef, orderBy('createdAt', 'desc'), limit(1));
+        const messagesSnap = await getDocs(messagesQ);
 
-          if (messagesSnap.empty) continue;
+        if (messagesSnap.empty) continue;
 
-          const lastMessage = messagesSnap.docs[0].data();
-          const otherUid = chatId.split('_').find(id => id !== user.uid);
+        const lastMessage = messagesSnap.docs[0].data();
+        const otherUid = participants.find(id => id !== user.uid);
 
-          userChats.push({
-            chatId,
-            otherUid,
-            lastMessage: lastMessage.text,
-            lastSender: lastMessage.senderName,
-            lastSenderId: lastMessage.senderId,
-            time: lastMessage.createdAt,
-          });
-        }
-
-        userChats.sort((a, b) => {
-          const aTime = a.time?.toDate ? a.time.toDate() : new Date(a.time);
-          const bTime = b.time?.toDate ? b.time.toDate() : new Date(b.time);
-          return bTime - aTime;
+        userChats.push({
+          chatId,
+          otherUid,
+          lastMessage: lastMessage.text,
+          lastSender: lastMessage.senderName,
+          lastSenderId: lastMessage.senderId,
+          time: lastMessage.createdAt,
         });
-
-        setConversations(userChats);
-        setLoading(false);
-      } catch (e) {
-        console.error(e);
-        setLoading(false);
       }
-    }
 
-    loadConversations();
+      userChats.sort((a, b) => {
+        const aTime = a.time?.toDate ? a.time.toDate() : new Date(a.time || 0);
+        const bTime = b.time?.toDate ? b.time.toDate() : new Date(b.time || 0);
+        return bTime - aTime;
+      });
+
+      setConversations(userChats);
+      setLoading(false);
+    });
+
+    return () => unsub();
   }, [user]);
 
   function timeAgo(time) {
