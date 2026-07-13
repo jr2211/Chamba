@@ -124,7 +124,6 @@ function App() {
           Chamba
         </div>
         <div className="nav-links">
-          {!user && <span onClick={() => setPage('contractors')}>For contractors</span>}
           {user && user.role === 'worker' && <span onClick={() => setPage('jobfeed')}>Jobs</span>}
           {user && user.role === 'contractor' && <span onClick={() => setPage('feed')}>Find workers</span>}
           {user && user.role === 'contractor' && <span onClick={() => setPage('postjob')}>Post a job</span>}
@@ -170,16 +169,25 @@ function App() {
             <div className="hero">
               <div className="badge">Built for the trades</div>
               <h1>Connect with contractors who need <span>skilled workers</span> today</h1>
-              <p>No more standing outside Home Depot. Chamba connects electricians, plumbers, carpenters, and general laborers directly with contractors who have open jobs right now.</p>
+              <p>Connect with skilled workers and contractors instantly — no fees, no middleman, just results.</p>
               <div className="hero-btns">
                 <button className="btn-primary" onClick={() => setPage('auth')}>Find work near me</button>
                 <button className="btn-outline" onClick={() => setPage('auth')}>I need workers</button>
               </div>
               <div className="stats-row">
-                <div className="stat"><div className="stat-num">800+</div><div className="stat-label">Active workers</div></div>
-                <div className="stat"><div className="stat-num">200+</div><div className="stat-label">Contractors hiring</div></div>
-                <div className="stat"><div className="stat-num">4.8★</div><div className="stat-label">Avg. rating</div></div>
-              </div>
+  <div className="stat">
+    <div className="stat-num">✓</div>
+    <div className="stat-label">Free to join</div>
+  </div>
+  <div className="stat">
+    <div className="stat-num">✓</div>
+    <div className="stat-label">No middleman fees</div>
+  </div>
+  <div className="stat">
+    <div className="stat-num">✓</div>
+    <div className="stat-label">Direct contractor contact</div>
+  </div>
+</div>
             </div>
           </PageWrap>
         )}
